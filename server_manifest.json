@@ -592,11 +592,10 @@
             "params": [
               {
                 "name": "limit",
-                "type": "str",
+                "type": "int | None",
                 "required": false,
                 "in": "query",
-                "default": "20",
-                "description": "Max results (default 20, max 100). Documented as a string type."
+                "description": "Max results, 1-100. Default 20 when omitted."
               },
               {
                 "name": "cursor",

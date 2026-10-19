@@ -24,7 +24,7 @@ def register_face_assets_tools(mcp: FastMCP) -> None:
             "oldest-used first. Returns each face's id, source_url, created_at and last_used_at, plus the `used` and `limit` "
             "quota counts and a `next_cursor` for pagination. Each organization can hold up to 200 faces; at the cap, new "
             "submissions fail with `400 trusted_face_limit_reached` until unused faces are deleted. Use `unused_since` to find "
-            "prune candidates; the returned `id` is what delete_face_asset takes."
+            "prune candidates."
         ),
         annotations=ToolAnnotations(readOnlyHint=True, destructiveHint=False, openWorldHint=True),
     )
