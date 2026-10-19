@@ -65,7 +65,7 @@ def register_video_generation_tools(mcp: FastMCP) -> None:
         idempotency_key: str | None = Field(
             default=None,
             description="Stable key for one logical submission, sent as the Idempotency-Key header. "
-            "Reuse it only when retrying the identical model and input.",
+            "Reuse it only when retrying the identical model and input. Omit to send no Idempotency-Key header.",
         ),
     ) -> Seedance20SpicyTextToVideoResult:
         tlog = ToolLogger(logger, "generate_seedance_2_0_spicy_text_to_video")

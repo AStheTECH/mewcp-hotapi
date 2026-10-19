@@ -78,7 +78,7 @@ def register_tasks_tools(mcp: FastMCP) -> None:
         webhook: str | None = Field(default=None, description="Public HTTPS callback URL for the signed terminal task event, sent as a query param. Private addresses and redirects are not supported. Keep unset; results are retrieved by polling get_task."),
         idempotency_key_header: str | None = Field(default=None, description="Stable key for one logical submission, sent as the Idempotency-Key header. Reuse it only when retrying the identical model and input. Omit to send no header."),
         webhook_url: str | None = Field(default=None, description="HTTPS URL for the signed terminal-status callback, sent in the body. Prefer the webhook param. Keep unset; results are retrieved by polling get_task."),
-        idempotency_key: str | None = Field(default=None, description="Dedupe key sent in the body. Prefer idempotency_key_header."),
+        idempotency_key: str | None = Field(default=None, description="Dedupe key sent in the body. Prefer idempotency_key_header. Omit to send no body key."),
     ) -> CreateTaskResult:
         tlog = ToolLogger(logger, "create_task")
 
@@ -152,11 +152,11 @@ def register_tasks_tools(mcp: FastMCP) -> None:
         limit: int | None = Field(default=None, description="Max results per page, 1-100. Omit for the API default of 20."),
         cursor: str | None = Field(default=None, description="Pagination cursor from a prior next_cursor. Omit for the first page."),
         status: str | None = Field(default=None, description="Filter by lifecycle status (pending, queued, processing, succeeded, failed, cancelled, expired), or active for everything not yet terminal (pending, queued, processing). Omit for all."),
-        q: str | None = Field(default=None, description="Free-text search over task id, model and task kind."),
-        fields: str | None = Field(default=None, description="full (default) includes input and output; summary omits both. Prefer summary when polling a list."),
-        api_key_id: str | None = Field(default=None, description="Only tasks created by this API key of the organization."),
-        created_after: str | None = Field(default=None, description="ISO 8601 timestamp. Only tasks created at or after this instant."),
-        created_before: str | None = Field(default=None, description="ISO 8601 timestamp (exclusive). Only tasks created before this instant."),
+        q: str | None = Field(default=None, description="Free-text search over task id, model and task kind. Omit to apply no text filter."),
+        fields: str | None = Field(default=None, description="full (default) includes input and output; summary omits both. Prefer summary when polling a list. Omit for full."),
+        api_key_id: str | None = Field(default=None, description="Only tasks created by this API key of the organization. Omit to include tasks from all keys."),
+        created_after: str | None = Field(default=None, description="ISO 8601 timestamp. Only tasks created at or after this instant. Omit for no lower bound."),
+        created_before: str | None = Field(default=None, description="ISO 8601 timestamp (exclusive). Only tasks created before this instant. Omit for no upper bound."),
     ) -> ListTasksResult:
         tlog = ToolLogger(logger, "list_tasks")
 
