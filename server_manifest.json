@@ -1,0 +1,982 @@
+{
+  "manifest_version": 1,
+  "server": {
+    "name": "mewcp-hotapi",
+    "package": "hotapi_mcp",
+    "auth": "static",
+    "version": "v1.0.0",
+    "api_base": "https://api.hotapi.ai/v1"
+  },
+  "tools": {
+    "groups": {
+      "face_assets": {
+        "file": "face_assets_tools.py",
+        "doc_source": "list_face_assets.md",
+        "register_fn": "register_face_assets_tools",
+        "tools": {
+          "list_face_assets": {
+            "doc_file": "face-assets/list_face_assets.md",
+            "endpoint": "GET /face-assets",
+            "description": "Lists the organization's trusted reference faces, oldest-used first, returning each face's id, source_url, created_at and last_used_at plus the used and limit quota counts and a next_cursor for pagination; unused_since filters to prune candidates.",
+            "tier": "GET",
+            "params": [
+              {
+                "name": "limit",
+                "type": "str",
+                "required": false,
+                "default": "50",
+                "description": "Page size, 1-200. Default 50."
+              },
+              {
+                "name": "cursor",
+                "type": "str",
+                "required": false,
+                "description": "Pagination cursor from a prior next_cursor."
+              },
+              {
+                "name": "unused_since",
+                "type": "str",
+                "required": false,
+                "description": "Only faces last used before this ISO date (prune dead weight)."
+              }
+            ],
+            "response_fields": [
+              {
+                "name": "data",
+                "type": "object[]"
+              },
+              {
+                "name": "data[].id",
+                "type": "string"
+              },
+              {
+                "name": "data[].source_url",
+                "type": "string"
+              },
+              {
+                "name": "data[].created_at",
+                "type": "string"
+              },
+              {
+                "name": "data[].last_used_at",
+                "type": "string"
+              },
+              {
+                "name": "next_cursor",
+                "type": "oneOf"
+              },
+              {
+                "name": "used",
+                "type": "number"
+              },
+              {
+                "name": "limit",
+                "type": "number"
+              }
+            ],
+            "schema": {
+              "data": "FaceAssetListData",
+              "result": "FaceAssetListResult"
+            }
+          }
+        }
+      },
+      "image_generation": {
+        "file": "image_generation_tools.py",
+        "doc_source": "generate_z_image_spicy.md",
+        "register_fn": "register_image_generation_tools",
+        "tools": {
+          "generate_z_image_spicy": {
+            "doc_file": "image-generation/generate_z_image_spicy.md",
+            "endpoint": "POST /z-image-spicy",
+            "description": "Submits an asynchronous uncensored text-to-image task on the z-image-spicy model and returns a queued task to poll with get_task.",
+            "tier": "CREATE",
+            "params": [
+              {
+                "name": "prompt",
+                "type": "str",
+                "required": true,
+                "description": "Text prompt. (body)"
+              },
+              {
+                "name": "width",
+                "type": "int",
+                "required": false,
+                "description": "Image width in pixels, 256-1536. (body)"
+              },
+              {
+                "name": "height",
+                "type": "int",
+                "required": false,
+                "description": "Image height in pixels, 256-1536. (body)"
+              },
+              {
+                "name": "seed",
+                "type": "int | None",
+                "required": false,
+                "description": "Random seed (0-2147483647). null or omitted = random. (body)"
+              },
+              {
+                "name": "webhook",
+                "type": "str",
+                "required": false,
+                "description": "Query param: public HTTPS callback URL for the signed terminal task event. Leave unset; results are retrieved by polling get_task."
+              },
+              {
+                "name": "idempotency_key",
+                "type": "str",
+                "required": false,
+                "description": "Header 'idempotency-key': stable key for one logical submission. Reuse it only when retrying the identical model and input."
+              }
+            ],
+            "response_fields": [
+              {
+                "name": "id",
+                "type": "str"
+              },
+              {
+                "name": "object",
+                "type": "str"
+              },
+              {
+                "name": "status",
+                "type": "str"
+              },
+              {
+                "name": "model",
+                "type": "str"
+              },
+              {
+                "name": "task_kind",
+                "type": "str"
+              },
+              {
+                "name": "input",
+                "type": "dict"
+              },
+              {
+                "name": "output",
+                "type": "dict"
+              },
+              {
+                "name": "error",
+                "type": "dict"
+              },
+              {
+                "name": "error.type",
+                "type": "str"
+              },
+              {
+                "name": "error.code",
+                "type": "str"
+              },
+              {
+                "name": "error.message",
+                "type": "str"
+              },
+              {
+                "name": "estimated_credits_cost",
+                "type": "int"
+              },
+              {
+                "name": "actual_credits_cost",
+                "type": "int"
+              },
+              {
+                "name": "webhook_url",
+                "type": "str"
+              },
+              {
+                "name": "api_key_id",
+                "type": "str"
+              },
+              {
+                "name": "created_at",
+                "type": "int"
+              },
+              {
+                "name": "queued_at",
+                "type": "int"
+              },
+              {
+                "name": "started_at",
+                "type": "int"
+              },
+              {
+                "name": "completed_at",
+                "type": "int"
+              },
+              {
+                "name": "expires_at",
+                "type": "int"
+              },
+              {
+                "name": "reference_video_seconds",
+                "type": "float"
+              }
+            ],
+            "schema": {
+              "data": "ZImageSpicyData",
+              "result": "ZImageSpicyResult"
+            }
+          }
+        }
+      },
+      "models": {
+        "file": "models_tools.py",
+        "doc_source": "list_models.md",
+        "register_fn": "register_models_tools",
+        "tools": {
+          "list_models": {
+            "doc_file": "models/list_models.md",
+            "endpoint": "GET /models",
+            "description": "Lists the available models along with their capabilities and credit pricing.",
+            "tier": "GET",
+            "params": [],
+            "response_fields": [
+              {
+                "name": "object",
+                "type": "string"
+              },
+              {
+                "name": "data",
+                "type": "object[]"
+              },
+              {
+                "name": "data[].id",
+                "type": "string"
+              },
+              {
+                "name": "data[].object",
+                "type": "string"
+              },
+              {
+                "name": "data[].created",
+                "type": "integer"
+              },
+              {
+                "name": "data[].owned_by",
+                "type": "string"
+              },
+              {
+                "name": "data[].modal",
+                "type": "string"
+              },
+              {
+                "name": "data[].task_kind",
+                "type": "string"
+              },
+              {
+                "name": "data[].description",
+                "type": "oneOf"
+              },
+              {
+                "name": "data[].capabilities",
+                "type": "string[]"
+              },
+              {
+                "name": "data[].pricing",
+                "type": "object"
+              }
+            ],
+            "schema": {
+              "data": "ModelListData",
+              "result": "ModelListResult"
+            }
+          }
+        }
+      },
+      "tasks": {
+        "file": "tasks_tools.py",
+        "doc_source": "cancel_task.md, create_task.md, delete_task_result.md, get_task.md, list_tasks.md",
+        "register_fn": "register_tasks_tools",
+        "tools": {
+          "cancel_task": {
+            "doc_file": "tasks/cancel_task.md",
+            "endpoint": "DELETE /tasks/{id}",
+            "description": "Cancels a task by id and returns a confirmation; the full charge is refunded if the task has not started but not once it is processing, and a task already in a terminal status returns a conflict.",
+            "tier": "DELETE",
+            "params": [
+              {
+                "name": "id",
+                "type": "str",
+                "required": true,
+                "in": "path",
+                "description": "Task id (path param), from create_task, list_tasks or a per-model generation tool."
+              }
+            ],
+            "response_fields": [
+              {
+                "name": "id",
+                "type": "str"
+              },
+              {
+                "name": "status",
+                "type": "str"
+              }
+            ],
+            "schema": {
+              "data": "CancelTaskData",
+              "result": "CancelTaskResult"
+            }
+          },
+          "create_task": {
+            "doc_file": "tasks/create_task.md",
+            "endpoint": "POST /tasks",
+            "description": "Submits an asynchronous image or video generation task for any model by passing the model name and a model-specific input object, and returns the queued task to poll with get_task. Prefer the per-model tool when one exists, for example generate_z_image_spicy.",
+            "tier": "CREATE",
+            "params": [
+              {
+                "name": "model",
+                "type": "str",
+                "required": true,
+                "in": "body",
+                "description": "Model name (see GET /v1/models)."
+              },
+              {
+                "name": "input",
+                "type": "dict",
+                "required": true,
+                "in": "body",
+                "description": "Model-specific input. See the per-model endpoint (e.g. POST /v1/z-image-spicy) for the exact fields."
+              },
+              {
+                "name": "webhook",
+                "type": "str",
+                "required": false,
+                "in": "query",
+                "description": "Public HTTPS callback URL for the signed terminal task event. Private addresses and redirects are not supported. Deliveries use the organization's webhook signing secret. Agent note: keep unset; results are retrieved by polling get_task."
+              },
+              {
+                "name": "idempotency-key",
+                "type": "str",
+                "required": false,
+                "in": "header",
+                "description": "Stable key for one logical submission (sent as the Idempotency-Key header). Reuse it only when retrying the identical model and input."
+              },
+              {
+                "name": "webhook_url",
+                "type": "str",
+                "required": false,
+                "in": "body",
+                "format": "uri",
+                "description": "HTTPS URL for the signed terminal-status callback. Prefer the webhook query param. Agent note: keep unset; results are retrieved by polling get_task."
+              },
+              {
+                "name": "idempotency_key",
+                "type": "str",
+                "required": false,
+                "in": "body",
+                "description": "Dedupe key. Prefer the Idempotency-Key header."
+              }
+            ],
+            "response_fields": [
+              {
+                "name": "id",
+                "type": "str"
+              },
+              {
+                "name": "object",
+                "type": "str"
+              },
+              {
+                "name": "status",
+                "type": "str",
+                "enum": [
+                  "pending",
+                  "queued",
+                  "processing",
+                  "succeeded",
+                  "failed",
+                  "cancelled",
+                  "expired"
+                ]
+              },
+              {
+                "name": "model",
+                "type": "str"
+              },
+              {
+                "name": "task_kind",
+                "type": "str"
+              },
+              {
+                "name": "input",
+                "type": "dict"
+              },
+              {
+                "name": "output",
+                "type": "dict"
+              },
+              {
+                "name": "error",
+                "type": "dict"
+              },
+              {
+                "name": "error.type",
+                "type": "str"
+              },
+              {
+                "name": "error.code",
+                "type": "str"
+              },
+              {
+                "name": "error.message",
+                "type": "str"
+              },
+              {
+                "name": "estimated_credits_cost",
+                "type": "int"
+              },
+              {
+                "name": "actual_credits_cost",
+                "type": "int"
+              },
+              {
+                "name": "webhook_url",
+                "type": "str"
+              },
+              {
+                "name": "api_key_id",
+                "type": "str"
+              },
+              {
+                "name": "created_at",
+                "type": "int"
+              },
+              {
+                "name": "queued_at",
+                "type": "int"
+              },
+              {
+                "name": "started_at",
+                "type": "int"
+              },
+              {
+                "name": "completed_at",
+                "type": "int"
+              },
+              {
+                "name": "expires_at",
+                "type": "int"
+              },
+              {
+                "name": "reference_video_seconds",
+                "type": "float"
+              }
+            ],
+            "schema": {
+              "data": "CreateTaskData",
+              "result": "CreateTaskResult"
+            }
+          },
+          "get_task": {
+            "doc_file": "tasks/get_task.md",
+            "endpoint": "GET /tasks/{id}",
+            "description": "Fetches a task by id and returns its current status and, once ready, its output.",
+            "tier": "GET",
+            "params": [
+              {
+                "name": "id",
+                "type": "str",
+                "required": true,
+                "in": "path",
+                "description": "Task id (path param), from create_task, list_tasks or a per-model generation tool."
+              }
+            ],
+            "response_fields": [
+              {
+                "name": "id",
+                "type": "str"
+              },
+              {
+                "name": "object",
+                "type": "str"
+              },
+              {
+                "name": "status",
+                "type": "str",
+                "enum": [
+                  "pending",
+                  "queued",
+                  "processing",
+                  "succeeded",
+                  "failed",
+                  "cancelled",
+                  "expired"
+                ]
+              },
+              {
+                "name": "model",
+                "type": "str"
+              },
+              {
+                "name": "task_kind",
+                "type": "str"
+              },
+              {
+                "name": "input",
+                "type": "dict"
+              },
+              {
+                "name": "output",
+                "type": "dict"
+              },
+              {
+                "name": "error",
+                "type": "dict"
+              },
+              {
+                "name": "error.type",
+                "type": "str"
+              },
+              {
+                "name": "error.code",
+                "type": "str"
+              },
+              {
+                "name": "error.message",
+                "type": "str"
+              },
+              {
+                "name": "estimated_credits_cost",
+                "type": "int"
+              },
+              {
+                "name": "actual_credits_cost",
+                "type": "int"
+              },
+              {
+                "name": "webhook_url",
+                "type": "str"
+              },
+              {
+                "name": "api_key_id",
+                "type": "str"
+              },
+              {
+                "name": "created_at",
+                "type": "int"
+              },
+              {
+                "name": "queued_at",
+                "type": "int"
+              },
+              {
+                "name": "started_at",
+                "type": "int"
+              },
+              {
+                "name": "completed_at",
+                "type": "int"
+              },
+              {
+                "name": "expires_at",
+                "type": "int"
+              },
+              {
+                "name": "reference_video_seconds",
+                "type": "float"
+              }
+            ],
+            "schema": {
+              "data": "GetTaskData",
+              "result": "GetTaskResult"
+            }
+          },
+          "list_tasks": {
+            "doc_file": "tasks/list_tasks.md",
+            "endpoint": "GET /tasks",
+            "description": "Lists the organization's tasks most recent first with cursor pagination, filterable by status, API key and creation date range; use fields=summary when polling to omit input and output.",
+            "tier": "GET",
+            "params": [
+              {
+                "name": "limit",
+                "type": "str",
+                "required": false,
+                "in": "query",
+                "default": "20",
+                "description": "Max results (default 20, max 100). Documented as a string type."
+              },
+              {
+                "name": "cursor",
+                "type": "str",
+                "required": false,
+                "in": "query",
+                "description": "Pagination cursor from a prior next_cursor."
+              },
+              {
+                "name": "status",
+                "type": "str",
+                "required": false,
+                "in": "query",
+                "description": "Filter by lifecycle status, or active for everything not yet terminal (pending, queued, processing)."
+              },
+              {
+                "name": "q",
+                "type": "str",
+                "required": false,
+                "in": "query",
+                "description": "Free-text search over task id / model / task kind."
+              },
+              {
+                "name": "fields",
+                "type": "str",
+                "required": false,
+                "in": "query",
+                "default": "full",
+                "enum": [
+                  "full",
+                  "summary"
+                ],
+                "description": "full (default) includes input and output; summary omits both. Prefer summary when polling a list; an inlined image input can be megabytes."
+              },
+              {
+                "name": "api_key_id",
+                "type": "str",
+                "required": false,
+                "in": "query",
+                "description": "Only tasks created by this API key of the organization."
+              },
+              {
+                "name": "created_after",
+                "type": "str",
+                "required": false,
+                "in": "query",
+                "description": "ISO 8601. Only tasks created at or after this instant."
+              },
+              {
+                "name": "created_before",
+                "type": "str",
+                "required": false,
+                "in": "query",
+                "description": "ISO 8601 (exclusive). Only tasks created before this instant."
+              }
+            ],
+            "response_fields": [
+              {
+                "name": "data",
+                "type": "list[dict]"
+              },
+              {
+                "name": "data[].id",
+                "type": "str"
+              },
+              {
+                "name": "data[].object",
+                "type": "str"
+              },
+              {
+                "name": "data[].status",
+                "type": "str"
+              },
+              {
+                "name": "data[].model",
+                "type": "str"
+              },
+              {
+                "name": "data[].task_kind",
+                "type": "str"
+              },
+              {
+                "name": "data[].input",
+                "type": "dict"
+              },
+              {
+                "name": "data[].output",
+                "type": "dict"
+              },
+              {
+                "name": "data[].error",
+                "type": "dict"
+              },
+              {
+                "name": "data[].error.type",
+                "type": "str"
+              },
+              {
+                "name": "data[].error.code",
+                "type": "str"
+              },
+              {
+                "name": "data[].error.message",
+                "type": "str"
+              },
+              {
+                "name": "data[].estimated_credits_cost",
+                "type": "int"
+              },
+              {
+                "name": "data[].actual_credits_cost",
+                "type": "int"
+              },
+              {
+                "name": "data[].webhook_url",
+                "type": "str"
+              },
+              {
+                "name": "data[].api_key_id",
+                "type": "str"
+              },
+              {
+                "name": "data[].created_at",
+                "type": "int"
+              },
+              {
+                "name": "data[].queued_at",
+                "type": "int"
+              },
+              {
+                "name": "data[].started_at",
+                "type": "int"
+              },
+              {
+                "name": "data[].completed_at",
+                "type": "int"
+              },
+              {
+                "name": "data[].expires_at",
+                "type": "int"
+              },
+              {
+                "name": "next_cursor",
+                "type": "str"
+              }
+            ],
+            "schema": {
+              "data": "ListTasksData",
+              "result": "ListTasksResult"
+            }
+          }
+        }
+      },
+      "usage": {
+        "file": "usage_tools.py",
+        "doc_source": "get_usage.md",
+        "register_fn": "register_usage_tools",
+        "tools": {
+          "get_usage": {
+            "doc_file": "usage/get_usage.md",
+            "endpoint": "GET /usage",
+            "description": "Returns daily usage rollups (request count, credits charged, error count) per model for the organization, most recent first, optionally filtered by a date range.",
+            "tier": "GET",
+            "params": [
+              {
+                "name": "from",
+                "type": "str",
+                "required": false,
+                "description": "Start date YYYY-MM-DD (inclusive)."
+              },
+              {
+                "name": "to",
+                "type": "str",
+                "required": false,
+                "description": "End date YYYY-MM-DD (inclusive)."
+              }
+            ],
+            "response_fields": [
+              {
+                "name": "data",
+                "type": "object[]"
+              },
+              {
+                "name": "data[].date",
+                "type": "str"
+              },
+              {
+                "name": "data[].model",
+                "type": "str"
+              },
+              {
+                "name": "data[].request_count",
+                "type": "int"
+              },
+              {
+                "name": "data[].credits_charged",
+                "type": "int"
+              },
+              {
+                "name": "data[].error_count",
+                "type": "int"
+              }
+            ],
+            "schema": {
+              "data": "UsageData",
+              "result": "UsageResult"
+            }
+          }
+        }
+      },
+      "video_generation": {
+        "file": "video_generation_tools.py",
+        "doc_source": "video-generation/ (generate_seedance_2_0_spicy_text_to_video.md)",
+        "register_fn": "register_video_generation_tools",
+        "tools": {
+          "generate_seedance_2_0_spicy_text_to_video": {
+            "doc_file": "video-generation/generate_seedance_2_0_spicy_text_to_video.md",
+            "endpoint": "POST /seedance-2.0-spicy/text-to-video",
+            "description": "Submits an asynchronous text-to-video task (480p/720p/1080p, 4-15s, selectable aspect ratio, optional synced audio) on the seedance-2.0-spicy model and returns a queued task to poll with get_task.",
+            "tier": "CREATE",
+            "params": [
+              {
+                "name": "prompt",
+                "type": "str",
+                "required": true,
+                "description": "Text prompt."
+              },
+              {
+                "name": "duration_seconds",
+                "type": "int",
+                "required": true,
+                "description": "Video length in seconds, 4-15."
+              },
+              {
+                "name": "resolution",
+                "type": "str",
+                "required": false,
+                "description": "Output resolution; omitted = cheapest tier (480p).",
+                "enum": [
+                  "480p",
+                  "720p",
+                  "1080p"
+                ]
+              },
+              {
+                "name": "ratio",
+                "type": "str",
+                "required": false,
+                "description": "Output aspect ratio. Omitted = the model chooses from your prompt or references ('adaptive').",
+                "enum": [
+                  "21:9",
+                  "16:9",
+                  "4:3",
+                  "1:1",
+                  "3:4",
+                  "9:16",
+                  "adaptive"
+                ]
+              },
+              {
+                "name": "generate_audio",
+                "type": "bool",
+                "required": false,
+                "description": "Generate a synced audio track. If audio is rejected by provider moderation the whole task fails (fully refunded); pass false for a silent video to avoid this.",
+                "default": true
+              },
+              {
+                "name": "seed",
+                "type": "int | None",
+                "required": false,
+                "description": "Random seed (0-2147483647). null or omitted = random."
+              },
+              {
+                "name": "webhook",
+                "type": "str",
+                "required": false,
+                "description": "Query param. Public HTTPS callback URL for the signed terminal task event. Agent note: keep unset; results are retrieved by polling get_task."
+              },
+              {
+                "name": "idempotency_key",
+                "type": "str",
+                "required": false,
+                "description": "Header param 'idempotency-key'. Stable key for one logical submission; reuse only when retrying the identical model and input."
+              }
+            ],
+            "response_fields": [
+              {
+                "name": "id",
+                "type": "str"
+              },
+              {
+                "name": "object",
+                "type": "str"
+              },
+              {
+                "name": "status",
+                "type": "str"
+              },
+              {
+                "name": "model",
+                "type": "str"
+              },
+              {
+                "name": "task_kind",
+                "type": "str"
+              },
+              {
+                "name": "input",
+                "type": "dict"
+              },
+              {
+                "name": "output",
+                "type": "dict"
+              },
+              {
+                "name": "error",
+                "type": "dict"
+              },
+              {
+                "name": "error.type",
+                "type": "str"
+              },
+              {
+                "name": "error.code",
+                "type": "str"
+              },
+              {
+                "name": "error.message",
+                "type": "str"
+              },
+              {
+                "name": "estimated_credits_cost",
+                "type": "int"
+              },
+              {
+                "name": "actual_credits_cost",
+                "type": "int"
+              },
+              {
+                "name": "webhook_url",
+                "type": "str"
+              },
+              {
+                "name": "api_key_id",
+                "type": "str"
+              },
+              {
+                "name": "created_at",
+                "type": "int"
+              },
+              {
+                "name": "queued_at",
+                "type": "int"
+              },
+              {
+                "name": "started_at",
+                "type": "int"
+              },
+              {
+                "name": "completed_at",
+                "type": "int"
+              },
+              {
+                "name": "expires_at",
+                "type": "int"
+              },
+              {
+                "name": "reference_video_seconds",
+                "type": "float"
+              }
+            ],
+            "schema": {
+              "data": "Seedance20SpicyTextToVideoData",
+              "result": "Seedance20SpicyTextToVideoResult"
+            }
+          }
+        }
+      }
+    }
+  },
+  "resources": {},
+  "prompts": {}
+}
